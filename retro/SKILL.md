@@ -1,8 +1,8 @@
 ---
-name: retro
+name: gstack-retro
+description: "Use when asked to weekly retro, what did we ship, engineering retrospective: weekly engineering retrospective. A gstack skill under testing (third-party, MIT, status testing)."
 preamble-tier: 2
 version: 2.0.0
-description: "Weekly engineering retrospective. Use for: weekly retro, what did we ship. (gstack)"
 allowed-tools:
   - Bash
   - Read
@@ -33,6 +33,14 @@ gbrain:
       glob: "{gstack_state_root}/projects/{repo_slug}/learnings.jsonl"
       tail: 10
       render_as: "## Recent learnings"
+license: MIT
+metadata:
+  source_repo: https://github.com/garrytan/gstack
+  source_commit: 43026970b7da353a6d7f4bb8c5fab18f7b410ca4
+  source_version: "1.101.0.0"
+  source_path: retro/SKILL.md
+  upstream_name: retro
+  status: testing
 ---
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
 <!-- Regenerate: bun run gen:skill-docs -->
@@ -42,6 +50,8 @@ gbrain:
 This skill follows gstack shared preamble `d8804c5ab6bf` (AskUserQuestion format, voice, writing, completeness and completion rules). If your Read of that file, headed by this id, is still in context, do not read it again; otherwise Read `~/.claude/skills/gstack/retro/sections/preamble.md` in full before the command below. A section or subsection here with a shared heading replaces the shared one.
 
 ## Preamble (run first)
+
+**Operator gate (added at intake):** gstack's `bin/` scripts and browse binary are not part of this skill. Installing them needs the operator's approval, at an exact pinned version. Run the command below only if they are already installed. Its output can offer telemetry, artifacts sync or an update check, and those can send data off the machine: never turn any of them on, and never answer a consent prompt for the operator; ask the operator first. If the scripts are absent, use the degraded mode below.
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-skill-start --skill "retro" --model "claude"
@@ -53,7 +63,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run `./setup` or `/gstack-upgrade`, and proceed with their task.
+the operator that gstack is not installed (installing or upgrading it needs the operator's approval at an exact pinned version), and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -96,12 +106,14 @@ Exit code 2 = rejected as not user-originated; do not retry. On success: "Set `<
 
 ## Telemetry (run last)
 
-After workflow completion, log telemetry with ONE command. OUTCOME is
+**Operator gate (added at intake):** ask the operator first. Do not run the command below, and do not run any gstack sync command, unless the operator has approved gstack telemetry and artifacts sync in this session. These scripts can send usage events or synced files to a remote service. Without a clear yes, skip this section entirely, including in plan mode.
+
+If the operator approved: after workflow completion, log telemetry with ONE command. OUTCOME is
 success/error/abort/unknown; `SESSION_ID` and `TEL_START` are the values the
 preamble's skill-start output echoed. It also drains the artifacts-sync queue
 (the former skill-end sync step — do not run gstack-brain-sync separately).
 
-**PLAN MODE EXCEPTION — ALWAYS RUN:** This writes telemetry to
+**PLAN MODE (only with the operator's approval above):** This writes telemetry to
 `$GSTACK_STATE_ROOT/analytics/`, matching preamble analytics writes.
 
 ```bash
@@ -854,7 +866,7 @@ Considering the full cross-project picture.
 ### Global Step 8: Load history & compare
 
 ```bash
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 setopt +o nomatch 2>/dev/null || true  # zsh compat
 ls -t "$GSTACK_STATE_ROOT"/retros/global-*.json 2>/dev/null | head -5
 ```
@@ -868,13 +880,13 @@ If no prior global retros exist, append: "First global retro recorded — run ag
 ### Global Step 9: Save snapshot
 
 ```bash
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 mkdir -p "$GSTACK_STATE_ROOT"/retros
 ```
 
 Determine the next unused sequence number for today, using the same session-reminder date as Global Step 1:
 ```bash
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 setopt +o nomatch 2>/dev/null || true  # zsh compat
 today="<today>"
 next=1
@@ -949,3 +961,13 @@ When the user runs `/retro compare` (or `/retro compare 14d`):
 - Do not read CLAUDE.md or unrelated docs — this skill is self-contained; the CHANGELOG and optional inputs explicitly named above are exceptions
 - On first run (no prior retros), skip saved-history comparisons gracefully; explicit `compare` mode still computes its prior window
 - **Global mode:** Does NOT require being inside a git repo. Saves snapshots to `~/.gstack/retros/` (not the per-project history). Gracefully skip AI tools that aren't installed. Only compare against prior global retros with the same window value. If streak hits 365d cap, display as "365+ days".
+
+---
+
+## ARC intake note (not part of upstream)
+
+- Provenance: copied from https://github.com/garrytan/gstack at commit 43026970b7da353a6d7f4bb8c5fab18f7b410ca4 (version 1.101.0.0, MIT licence, Copyright (c) 2026 Garry Tan), upstream path `retro/SKILL.md`. The licence is the `LICENSE` file in this folder. The body is upstream's text except the intake edits below.
+- Intake edits: every install, upgrade, setup, download, telemetry and artifacts-sync step now says to ask the operator first, and install steps say to pin an exact version. A third-party product offer (Aside) is labelled as the vendor's own offer.
+- Command mapping: the body calls this skill `/retro`; here it is `gstack-retro`. Every other `/<command>` the body names maps the same way: `/ship` is `gstack-ship`, `/review` is `gstack-review`, and a command whose folder already starts with `gstack-` keeps that name (`/gstack-upgrade` is `gstack-upgrade`). The router is `gstack`.
+- Runtime dependency: the body calls gstack's `bin/` scripts and the compiled browse binary at `~/.claude/skills/gstack/...`. They are not vendored here. Installing them needs the operator's approval, at an exact pinned version. Without them the skill runs in its degraded mode.
+- Registry status: testing. Do not turn this skill on for an agent without the operator's approval.

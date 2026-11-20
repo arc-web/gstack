@@ -1,8 +1,8 @@
 ---
-name: codex
+name: gstack-codex
+description: "Use when asked to codex review, second opinion, outside voice challenge: openAI Codex CLI wrapper — three modes. A gstack skill under testing (third-party, MIT, status testing)."
 preamble-tier: 3
 version: 1.0.0
-description: "OpenAI Codex CLI wrapper — three modes. Use for: codex review, second opinion, outside voice challenge. (gstack)"
 triggers:
   - codex review
   - second opinion
@@ -14,6 +14,14 @@ allowed-tools:
   - Glob
   - Grep
   - AskUserQuestion
+license: MIT
+metadata:
+  source_repo: https://github.com/garrytan/gstack
+  source_commit: 43026970b7da353a6d7f4bb8c5fab18f7b410ca4
+  source_version: "1.101.0.0"
+  source_path: codex/SKILL.md
+  upstream_name: codex
+  status: testing
 ---
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
 <!-- Regenerate: bun run gen:skill-docs -->
@@ -23,6 +31,8 @@ allowed-tools:
 This skill follows gstack shared preamble `d8804c5ab6bf` (AskUserQuestion format, voice, writing, completeness and completion rules). If your Read of that file, headed by this id, is still in context, do not read it again; otherwise Read `~/.claude/skills/gstack/codex/sections/preamble.md` in full before the command below. A section or subsection here with a shared heading replaces the shared one.
 
 ## Preamble (run first)
+
+**Operator gate (added at intake):** gstack's `bin/` scripts and browse binary are not part of this skill. Installing them needs the operator's approval, at an exact pinned version. Run the command below only if they are already installed. Its output can offer telemetry, artifacts sync or an update check, and those can send data off the machine: never turn any of them on, and never answer a consent prompt for the operator; ask the operator first. If the scripts are absent, use the degraded mode below.
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-skill-start --skill "codex" --model "claude"
@@ -34,7 +44,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run `./setup` or `/gstack-upgrade`, and proceed with their task.
+the operator that gstack is not installed (installing or upgrading it needs the operator's approval at an exact pinned version), and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -100,19 +110,21 @@ Then build the complete version of what remains.
 
 **Eureka:** When first-principles reasoning contradicts conventional wisdom, name it and log:
 ```bash
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 BRANCH=$(~/.claude/skills/gstack/bin/gstack-slug --get BRANCH 2>/dev/null)
 jq -nc --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg skill "SKILL_NAME" --arg branch "$BRANCH" --arg insight "ONE_LINE_SUMMARY" '{ts:$ts,skill:$skill,branch:$branch,insight:$insight}' >> "$GSTACK_STATE_ROOT/analytics/eureka.jsonl" 2>/dev/null || true
 ```
 
 ## Telemetry (run last)
 
-After workflow completion, log telemetry with ONE command. OUTCOME is
+**Operator gate (added at intake):** ask the operator first. Do not run the command below, and do not run any gstack sync command, unless the operator has approved gstack telemetry and artifacts sync in this session. These scripts can send usage events or synced files to a remote service. Without a clear yes, skip this section entirely, including in plan mode.
+
+If the operator approved: after workflow completion, log telemetry with ONE command. OUTCOME is
 success/error/abort/unknown; `SESSION_ID` and `TEL_START` are the values the
 preamble's skill-start output echoed. It also drains the artifacts-sync queue
 (the former skill-end sync step — do not run gstack-brain-sync separately).
 
-**PLAN MODE EXCEPTION — ALWAYS RUN:** This writes telemetry to
+**PLAN MODE (only with the operator's approval above):** This writes telemetry to
 `$GSTACK_STATE_ROOT/analytics/`, matching preamble analytics writes.
 
 ```bash
@@ -196,7 +208,7 @@ CODEX_BIN=$(command -v codex || echo "")
 ```
 
 If `NOT_FOUND`: stop and tell the user:
-"Codex CLI not found. Install it: `npm install -g @openai/codex` or see https://github.com/openai/codex"
+"Codex CLI not found. Install it: `npm install -g @openai/codex@<exact version>` (ask the operator first; pin an exact version) or see https://github.com/openai/codex"
 
 If `NOT_FOUND`, also log the event:
 ```bash
@@ -238,9 +250,9 @@ _CODEX_ROLE=''
 if { [ -n "${CODEX_THREAD_ID:-}" ] || [ -n "${CODEX_SANDBOX:-}" ] || [ "${GSTACK_ACTIVE_HOST:-}" = codex ]; }; then
   echo 'Codex outside review unavailable: harness mismatch; no outside process started. Missing coverage.' >&2
   if { [ -n "${CLAUDECODE:-}" ] || [ "${GSTACK_ACTIVE_HOST:-}" = claude ]; } && { [ -n "${CODEX_THREAD_ID:-}" ] || [ -n "${CODEX_SANDBOX:-}" ] || [ "${GSTACK_ACTIVE_HOST:-}" = codex ]; }; then
-    echo 'Inherited harness markers conflict. Run setup --host <actual-harness> (claude or codex); do not guess a replacement provider.' >&2
+    echo 'Inherited harness markers conflict. Ask the operator to approve a pinned-version gstack repair for the actual harness (claude or codex); do not guess a replacement provider.' >&2
   else
-    echo 'Repair installed skills: run setup --host codex from your gstack checkout.' >&2
+    echo 'Repair installed skills: ask the operator first; run setup --host codex only from a gstack checkout pinned to an exact version.' >&2
   fi
   exit 78
 fi
@@ -255,10 +267,10 @@ fi
 
 If `check-effort` failed, relay its lines and stop; no Codex call was made.
 
-If the runtime guard reports a harness mismatch, stop. Outside coverage is unavailable. Repair with `./setup --host codex`; do not silently substitute another provider or force a same-harness invocation.
+If the runtime guard reports a harness mismatch, stop. Outside coverage is unavailable. Repair with `./setup --host codex` (ask the operator first; pin an exact version); do not silently substitute another provider or force a same-harness invocation.
 
 If the output contains `HELPER_UNAVAILABLE`, stop: `gstack-codex-probe` is missing or
-not executable in this install. Tell the user to re-run `./setup` (or `/gstack-upgrade`).
+not executable in this install. Tell the user to re-run `./setup` (ask the operator first; pin an exact version) (or `/gstack-upgrade`).
 
 If the output contains `AUTH_FAILED`, stop and tell the user:
 "No Codex authentication found. Run `codex login` or set `$CODEX_API_KEY` / `$OPENAI_API_KEY`, then re-run this skill."
@@ -306,7 +318,7 @@ This keeps the skill working whether installed as a Claude Code plugin
 container where `HOME` may be unset and `/tmp` may be read-only.
 
 ```bash
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 PLAN_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get PLAN_ROOT)
 TMP_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get TMP_ROOT)
 ```
@@ -560,13 +572,7 @@ If token count is not available, display: `Tokens: unknown`
 ## Error Handling
 
 - **Binary not found:** Detected in Step 0. Stop with install instructions.
-- **Budget or quota stop (HTTP 402, payment required, quota):** the validator prints
-  `unavailable: the provider refused the review with HTTP 402` or names the quota. This is
-  not an auth error, even when the provider's message mentions the API key. Relay Codex's line
-  and tell the user: "Codex refused the call because its budget or quota is used up. Check the
-  allowance on the proxy or gateway in front of the provider, or the account's quota and
-  credits; logging in again will not fix it."
-- **Auth error:** Codex prints an auth error to stderr (401 or 403). Surface the error:
+- **Auth error:** Codex prints an auth error to stderr. Surface the error:
   "Codex authentication failed. Run `codex login` in your terminal to authenticate via ChatGPT."
 - **Timeout (Bash outer gate):** Every Bash gate sits ABOVE its inner wrapper (360s gate
   over the 330s review wrapper; 600s gate, the tool maximum, over the 540s challenge/consult
@@ -621,3 +627,13 @@ If token count is not available, display: `Tokens: unknown`
   `SKILL.md`, or `skills/gstack`. If any of these appear in the output, append a
   warning: "Codex appears to have read gstack skill files instead of reviewing your
   code. Consider retrying."
+
+---
+
+## ARC intake note (not part of upstream)
+
+- Provenance: copied from https://github.com/garrytan/gstack at commit 43026970b7da353a6d7f4bb8c5fab18f7b410ca4 (version 1.101.0.0, MIT licence, Copyright (c) 2026 Garry Tan), upstream path `codex/SKILL.md`. The licence is the `LICENSE` file in this folder. The body is upstream's text except the intake edits below.
+- Intake edits: every install, upgrade, setup, download, telemetry and artifacts-sync step now says to ask the operator first, and install steps say to pin an exact version. A third-party product offer (Aside) is labelled as the vendor's own offer.
+- Command mapping: the body calls this skill `/codex`; here it is `gstack-codex`. Every other `/<command>` the body names maps the same way: `/ship` is `gstack-ship`, `/review` is `gstack-review`, and a command whose folder already starts with `gstack-` keeps that name (`/gstack-upgrade` is `gstack-upgrade`). The router is `gstack`.
+- Runtime dependency: the body calls gstack's `bin/` scripts and the compiled browse binary at `~/.claude/skills/gstack/...`. They are not vendored here. Installing them needs the operator's approval, at an exact pinned version. Without them the skill runs in its degraded mode.
+- Registry status: testing. Do not turn this skill on for an agent without the operator's approval.

@@ -53,7 +53,7 @@ without a seam.
 
 ```bash
 SLUG=$(~/.claude/skills/gstack/bin/gstack-slug --get SLUG 2>/dev/null)
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 setopt +o nomatch 2>/dev/null || true
 _APPROVED=$(ls -t "$GSTACK_STATE_ROOT/projects/$SLUG/designs/"*/approved.json 2>/dev/null | head -1)
 [ -n "$_APPROVED" ] && echo "APPROVED: $_APPROVED" || echo "NO_APPROVED"
@@ -74,13 +74,13 @@ _FINALIZED=$(ls -t "$GSTACK_STATE_ROOT/projects/$SLUG/designs/"*/finalized.html 
 
 Nothing found and nothing named: ask once which design to animate, offering /design-shotgun or /design-html to make one.
 
-`BROWSER_UNAVAILABLE` or native Windows (capture needs WSL, macOS, Linux): nothing renders; give the fix, build `page.html` and stop before the first capture call. `NO_FFMPEG`: say ffmpeg is needed for the checks and exports (macOS `brew install ffmpeg`, Debian/Ubuntu `sudo apt-get install -y ffmpeg`), build the page, render its Step 3 still for a visual check, and stop.
+`BROWSER_UNAVAILABLE` or native Windows (capture needs WSL, macOS, Linux): nothing renders; give the fix, build `page.html` and stop before the first capture call. `NO_FFMPEG`: say ffmpeg is needed for the checks and exports (macOS `brew install ffmpeg`, Debian/Ubuntu `sudo apt-get install -y ffmpeg`; ask the operator first; pin an exact version), build the page, render its Step 3 still for a visual check, and stop.
 
 Set up the run directory:
 
 ```bash
 SLUG=$(~/.claude/skills/gstack/bin/gstack-slug --get SLUG 2>/dev/null)
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 _MOTION_DIR="$GSTACK_STATE_ROOT/projects/$SLUG/designs/<name>-motion-$(date +%Y%m%d)"
 mkdir -p "$_MOTION_DIR"
 echo "MOTION_DIR: $_MOTION_DIR"

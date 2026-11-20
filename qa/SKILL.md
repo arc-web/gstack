@@ -1,8 +1,8 @@
 ---
-name: qa
+name: gstack-qa
+description: "Use when asked to qa test this, find bugs on site, test the site: use when you test the site, API or CLI and fix bugs. A gstack skill under testing (third-party, MIT, status testing)."
 preamble-tier: 4
 version: 2.0.0
-description: "Use when you test the site, API or CLI and fix bugs. Use for: qa test this, find bugs on site, test the site. (gstack)"
 allowed-tools:
   - Bash
   - Read
@@ -16,6 +16,14 @@ triggers:
   - qa test this
   - find bugs on site
   - test the site
+license: MIT
+metadata:
+  source_repo: https://github.com/garrytan/gstack
+  source_commit: 43026970b7da353a6d7f4bb8c5fab18f7b410ca4
+  source_version: "1.101.0.0"
+  source_path: qa/SKILL.md
+  upstream_name: qa
+  status: testing
 ---
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
 <!-- Regenerate: bun run gen:skill-docs -->
@@ -25,6 +33,8 @@ triggers:
 This skill follows gstack shared preamble `d8804c5ab6bf` (AskUserQuestion format, voice, writing, completeness and completion rules). If your Read of that file, headed by this id, is still in context, do not read it again; otherwise Read `~/.claude/skills/gstack/qa/sections/preamble.md` in full before the command below. A section or subsection here with a shared heading replaces the shared one.
 
 ## Preamble (run first)
+
+**Operator gate (added at intake):** gstack's `bin/` scripts and browse binary are not part of this skill. Installing them needs the operator's approval, at an exact pinned version. Run the command below only if they are already installed. Its output can offer telemetry, artifacts sync or an update check, and those can send data off the machine: never turn any of them on, and never answer a consent prompt for the operator; ask the operator first. If the scripts are absent, use the degraded mode below.
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-skill-start --skill "qa" --model "claude"
@@ -36,7 +46,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run `./setup` or `/gstack-upgrade`, and proceed with their task.
+the operator that gstack is not installed (installing or upgrading it needs the operator's approval at an exact pinned version), and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -102,19 +112,21 @@ Then build the complete version of what remains.
 
 **Eureka:** When first-principles reasoning contradicts conventional wisdom, name it and log:
 ```bash
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 BRANCH=$(~/.claude/skills/gstack/bin/gstack-slug --get BRANCH 2>/dev/null)
 jq -nc --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg skill "SKILL_NAME" --arg branch "$BRANCH" --arg insight "ONE_LINE_SUMMARY" '{ts:$ts,skill:$skill,branch:$branch,insight:$insight}' >> "$GSTACK_STATE_ROOT/analytics/eureka.jsonl" 2>/dev/null || true
 ```
 
 ## Telemetry (run last)
 
-After workflow completion, log telemetry with ONE command. OUTCOME is
+**Operator gate (added at intake):** ask the operator first. Do not run the command below, and do not run any gstack sync command, unless the operator has approved gstack telemetry and artifacts sync in this session. These scripts can send usage events or synced files to a remote service. Without a clear yes, skip this section entirely, including in plan mode.
+
+If the operator approved: after workflow completion, log telemetry with ONE command. OUTCOME is
 success/error/abort/unknown; `SESSION_ID` and `TEL_START` are the values the
 preamble's skill-start output echoed. It also drains the artifacts-sync queue
 (the former skill-end sync step — do not run gstack-brain-sync separately).
 
-**PLAN MODE EXCEPTION — ALWAYS RUN:** This writes telemetry to
+**PLAN MODE (only with the operator's approval above):** This writes telemetry to
 `$GSTACK_STATE_ROOT/analytics/`, matching preamble analytics writes.
 
 ```bash
@@ -302,7 +314,7 @@ Prefer the richer of recent project test plans and plans in conversation over gi
 
 1. **Project-scoped test plans:** Find the latest for this repo:
    ```bash
-   GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+   GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
    setopt +o nomatch 2>/dev/null || true  # zsh compat
    SLUG=$(~/.claude/skills/gstack/bin/gstack-slug --get SLUG 2>/dev/null)
    ls -t "$GSTACK_STATE_ROOT"/projects/$SLUG/*-test-plan-*.md 2>/dev/null | head -1
@@ -464,7 +476,7 @@ about a worse score or regressed contract; blocked/inconclusive rechecks never v
 
 Write the Output Structure report locally and copy the same content to project context:
 ```bash
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 SLUG=$(~/.claude/skills/gstack/bin/gstack-slug --get SLUG 2>/dev/null) && mkdir -p "$GSTACK_STATE_ROOT/projects/$SLUG" && echo "PROJECT_DIR: $GSTACK_STATE_ROOT/projects/$SLUG"
 ```
 Write to `<PROJECT_DIR>/{user}-{branch}-test-outcome-{datetime}.md` (`PROJECT_DIR` printed above)
@@ -528,3 +540,13 @@ already knows. A good test: would this insight save time in a future session? If
 **Outside an explicitly approved browser bootstrap:** Only create tests through authorized codification in Phase 8a.5. Never modify CI configuration or weaken existing tests; use new native test files.
 
 When in doubt, stop and ask.
+
+---
+
+## ARC intake note (not part of upstream)
+
+- Provenance: copied from https://github.com/garrytan/gstack at commit 43026970b7da353a6d7f4bb8c5fab18f7b410ca4 (version 1.101.0.0, MIT licence, Copyright (c) 2026 Garry Tan), upstream path `qa/SKILL.md`. The licence is the `LICENSE` file in this folder. The body is upstream's text except the intake edits below.
+- Intake edits: every install, upgrade, setup, download, telemetry and artifacts-sync step now says to ask the operator first, and install steps say to pin an exact version. A third-party product offer (Aside) is labelled as the vendor's own offer.
+- Command mapping: the body calls this skill `/qa`; here it is `gstack-qa`. Every other `/<command>` the body names maps the same way: `/ship` is `gstack-ship`, `/review` is `gstack-review`, and a command whose folder already starts with `gstack-` keeps that name (`/gstack-upgrade` is `gstack-upgrade`). The router is `gstack`.
+- Runtime dependency: the body calls gstack's `bin/` scripts and the compiled browse binary at `~/.claude/skills/gstack/...`. They are not vendored here. Installing them needs the operator's approval, at an exact pinned version. Without them the skill runs in its degraded mode.
+- Registry status: testing. Do not turn this skill on for an agent without the operator's approval.

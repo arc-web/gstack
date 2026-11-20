@@ -159,7 +159,7 @@ granted.
 
 The bootstrap mirrors the repository's CI job: toolchain, dependencies, services,
 and for browser tests `xvfb` plus
-`sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0` (a stock Ubuntu
+`sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0` (changes the VM only; ask the operator first) (a stock Ubuntu
 24.04 VM has neither; `clang` and `python3-venv` are absent too). Relative
 `setup` paths resolve against `--src` (default `.`). gstack's own definition is
 `bun run test:ubicloud` (the free suite with the CI lane's environment) and

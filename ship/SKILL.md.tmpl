@@ -521,7 +521,7 @@ git config --get core.hooksPath >/dev/null 2>&1 || _HOOKS_CONFIG_STATUS=$?
 if [ -n "$_HOOK_PATH" ] && [ -n "$_HOOKS_DIR" ] && [ "$_HOOKS_CONFIG_STATUS" = "1" ] && [ ! -L "$_HOOKS_DIR" ]; then
   _HOOKS_IN_GIT_DIR="yes"
 fi
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 _PREPUSH_PROMPTED=$([ -f "$GSTACK_STATE_ROOT/.redact-prepush-prompted" ] && echo "yes" || echo "no")
 if [ "$_REDACT_PREPUSH" = "true" ] && [ "$_HOOKS_IN_GIT_DIR" = "yes" ] && [ "$_HOOK_STATE" != "unmanaged" ]; then
   ~/.claude/skills/gstack/bin/gstack-redact install-prepush-hook || exit $?
@@ -559,7 +559,7 @@ Branch on the echoed values:
    ALWAYS after either answer (never after a failed question; it must re-offer
    next time):
    ```bash
-   GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+   GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
    touch "$GSTACK_STATE_ROOT/.redact-prepush-prompted"
    ```
 3. **Declined earlier** — continue without comment.
@@ -649,7 +649,7 @@ The shell supplies the branch. Run it without confirmation.
 After a successful ship, show the non-blocking /plan-tune nudge once per machine:
 
 ```bash
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 _NUDGE_MARKER="$GSTACK_STATE_ROOT/.plan-tune-nudge-shown"
 _QT=$(~/.claude/skills/gstack/bin/gstack-config get question_tuning 2>/dev/null || echo "false")
 if [ ! -f "$_NUDGE_MARKER" ] && [ "$_QT" = "false" ]; then

@@ -51,7 +51,7 @@ CODEX_BIN=$(command -v codex || echo "")
 ```
 
 If `NOT_FOUND`: stop and tell the user:
-"Codex CLI not found. Install it: `npm install -g @openai/codex` or see https://github.com/openai/codex"
+"Codex CLI not found. Install it: `npm install -g @openai/codex@<exact version>` (ask the operator first; pin an exact version) or see https://github.com/openai/codex"
 
 If `NOT_FOUND`, also log the event:
 ```bash
@@ -101,10 +101,10 @@ fi
 
 If `check-effort` failed, relay its lines and stop; no Codex call was made.
 
-If the runtime guard reports a harness mismatch, stop. Outside coverage is unavailable. Repair with `./setup --host codex`; do not silently substitute another provider or force a same-harness invocation.
+If the runtime guard reports a harness mismatch, stop. Outside coverage is unavailable. Repair with `./setup --host codex` (ask the operator first; pin an exact version); do not silently substitute another provider or force a same-harness invocation.
 
 If the output contains `HELPER_UNAVAILABLE`, stop: `gstack-codex-probe` is missing or
-not executable in this install. Tell the user to re-run `./setup` (or `/gstack-upgrade`).
+not executable in this install. Tell the user to re-run `./setup` (ask the operator first; pin an exact version) (or `/gstack-upgrade`).
 
 If the output contains `AUTH_FAILED`, stop and tell the user:
 "No Codex authentication found. Run `codex login` or set `$CODEX_API_KEY` / `$OPENAI_API_KEY`, then re-run this skill."
@@ -152,7 +152,7 @@ This keeps the skill working whether installed as a Claude Code plugin
 container where `HOME` may be unset and `/tmp` may be read-only.
 
 ```bash
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 PLAN_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get PLAN_ROOT)
 TMP_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get TMP_ROOT)
 ```

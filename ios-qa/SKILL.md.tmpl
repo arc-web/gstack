@@ -95,7 +95,7 @@ daemon start runs a full bootstrap (the app relaunches once); a daemon that is
 already running keeps its in-memory session.
 
 ```bash
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 SESSION="$GSTACK_STATE_ROOT/ios-qa-session.json"
 PORT="${GSTACK_IOS_DAEMON_PORT:-9099}"
 if [ "$COLD" = "1" ]; then

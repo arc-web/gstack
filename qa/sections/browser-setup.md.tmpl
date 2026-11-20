@@ -13,7 +13,7 @@ Use the invoking workflow, not this file's /qa location, to select authority:
   Never bootstrap or invoke another skill. With missing tools/sessions,
   block only the affected browser probes; continue independent functional/static checks.
 - **Standalone /qa:** for `NEEDS_SETUP` or cookie import, ask for explicit approval; STOP and wait.
-  Only after approval, run `cd <SKILL_DIR> && ./setup` (includes missing Bun) or
+  Only after approval, run `cd <SKILL_DIR> && ./setup` (ask the operator first; pin an exact version) (includes missing Bun) or
   /setup-browser-cookies, respectively. Approval/access declined, unavailable or unsuccessful:
   mark affected probes blocked; continue independent safe checks.
 

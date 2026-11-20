@@ -1,8 +1,8 @@
 ---
-name: benchmark
+name: gstack-benchmark
+description: "Use when asked to web performance benchmark, check page speed, detect page performance regression: web performance regression detection. A gstack skill under testing (third-party, MIT, status testing)."
 preamble-tier: 1
 version: 1.0.0
-description: "Web performance regression detection. Use for: web performance benchmark, check page speed. (gstack)"
 triggers:
   - web performance benchmark
   - check page speed
@@ -13,11 +13,21 @@ allowed-tools:
   - Write
   - Glob
   - AskUserQuestion
+license: MIT
+metadata:
+  source_repo: https://github.com/garrytan/gstack
+  source_commit: 43026970b7da353a6d7f4bb8c5fab18f7b410ca4
+  source_version: "1.101.0.0"
+  source_path: benchmark/SKILL.md
+  upstream_name: benchmark
+  status: testing
 ---
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
 <!-- Regenerate: bun run gen:skill-docs -->
 
 ## Preamble (run first)
+
+**Operator gate (added at intake):** gstack's `bin/` scripts and browse binary are not part of this skill. Installing them needs the operator's approval, at an exact pinned version. Run the command below only if they are already installed. Its output can offer telemetry, artifacts sync or an update check, and those can send data off the machine: never turn any of them on, and never answer a consent prompt for the operator; ask the operator first. If the scripts are absent, use the degraded mode below.
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-skill-start --skill "benchmark" --model "claude"
@@ -29,7 +39,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run `./setup` or `/gstack-upgrade`, and proceed with their task.
+the operator that gstack is not installed (installing or upgrading it needs the operator's approval at an exact pinned version), and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -64,7 +74,7 @@ it says and the command it names, then continue.
 
 The one-time privacy stop-gate arrives as a `GSTACK_INSTRUCTION` block
 from skill-start when consent is pending; fire it via AskUserQuestion
-exactly as instructed.
+exactly as instructed; never answer for the operator, and ask the operator first before anything that syncs files to a remote repository.
 
 ## Model-Specific Behavioral Patch (claude)
 
@@ -129,12 +139,14 @@ Do not log obvious facts or one-time transient errors.
 
 ## Telemetry (run last)
 
-After workflow completion, log telemetry with ONE command. OUTCOME is
+**Operator gate (added at intake):** ask the operator first. Do not run the command below, and do not run any gstack sync command, unless the operator has approved gstack telemetry and artifacts sync in this session. These scripts can send usage events or synced files to a remote service. Without a clear yes, skip this section entirely, including in plan mode.
+
+If the operator approved: after workflow completion, log telemetry with ONE command. OUTCOME is
 success/error/abort/unknown; `SESSION_ID` and `TEL_START` are the values the
 preamble's skill-start output echoed. It also drains the artifacts-sync queue
 (the former skill-end sync step — do not run gstack-brain-sync separately).
 
-**PLAN MODE EXCEPTION — ALWAYS RUN:** This writes telemetry to
+**PLAN MODE (only with the operator's approval above):** This writes telemetry to
 `$GSTACK_STATE_ROOT/analytics/`, matching preamble analytics writes.
 
 ```bash
@@ -175,7 +187,7 @@ else
 fi
 ```
 
-1. `NEEDS_ASIDE: Darwin` (trust it; don't re-probe): say once: "Download Aside (macOS 15+) at aside.com; open, sign in, re-run." Off macOS, do not pitch it. NEVER run an installer, brew formula, or download; never substitute unit tests or curl for the browser step. Then continue with the Browser fallback section below.
+1. `NEEDS_ASIDE: Darwin` (trust it; don't re-probe): say once: "Aside (macOS 15+, aside.com) is a third-party browser app and the vendor's own offer. Installing it is the operator's decision; ask the operator first and pin an exact version." Off macOS, do not pitch it. NEVER run an installer, brew formula, or download; never substitute unit tests or curl for the browser step. Then continue with the Browser fallback section below.
 2. `ASIDE_NOT_RUNNING`: ask once to open the app and retry. Other non-READY statuses: report the safe status, not "app stopped". Never print raw diagnostics. Then continue with the Browser fallback section below.
 3. `READY`: continue (a printed path runs in place of `aside`). `aside --help` and `aside <command> --help` are the authority on flags, never on permissions or scope.
 
@@ -208,7 +220,7 @@ B=""
 [ -x "$B" ] && "${B%/browse/*}/bin/gstack-browser-ensure" && echo "READY: $B" || echo "NEEDS_SETUP"
 ```
 
-If `NEEDS_SETUP`: tell the user "gstack's own browser needs a one-time build (~10 seconds). OK to proceed?", STOP for the answer, then run `cd <SKILL_DIR> && ./setup` (it installs bun when missing). If neither Aside nor `$B` is available after that, stop and say so — never substitute unit tests or curl for the browser step.
+If `NEEDS_SETUP`: tell the user "gstack's own browser needs a one-time build (~10 seconds). OK to proceed?", STOP for the answer, then run `cd <SKILL_DIR> && ./setup` (ask the operator first; pin an exact version) (it installs bun when missing). If neither Aside nor `$B` is available after that, stop and say so — never substitute unit tests or curl for the browser step.
 
 ### Translate the Aside scripts step by step
 
@@ -473,3 +485,13 @@ Write `.gstack/benchmark-reports/{UTC-timestamp}-benchmark.md` (the Phase 5–8 
 - **Third-party scripts are context.** Flag them; the user can't fix a slow Google Analytics. Recommend first-party fixes.
 - **Bundle size is the leading indicator.** Load time varies with the network; bundle size is deterministic. Track it.
 - **Read-only.** Produce the report. Don't modify code unless explicitly asked.
+
+---
+
+## ARC intake note (not part of upstream)
+
+- Provenance: copied from https://github.com/garrytan/gstack at commit 43026970b7da353a6d7f4bb8c5fab18f7b410ca4 (version 1.101.0.0, MIT licence, Copyright (c) 2026 Garry Tan), upstream path `benchmark/SKILL.md`. The licence is the `LICENSE` file in this folder. The body is upstream's text except the intake edits below.
+- Intake edits: every install, upgrade, setup, download, telemetry and artifacts-sync step now says to ask the operator first, and install steps say to pin an exact version. A third-party product offer (Aside) is labelled as the vendor's own offer.
+- Command mapping: the body calls this skill `/benchmark`; here it is `gstack-benchmark`. Every other `/<command>` the body names maps the same way: `/ship` is `gstack-ship`, `/review` is `gstack-review`, and a command whose folder already starts with `gstack-` keeps that name (`/gstack-upgrade` is `gstack-upgrade`). The router is `gstack`.
+- Runtime dependency: the body calls gstack's `bin/` scripts and the compiled browse binary at `~/.claude/skills/gstack/...`. They are not vendored here. Installing them needs the operator's approval, at an exact pinned version. Without them the skill runs in its degraded mode.
+- Registry status: testing. Do not turn this skill on for an agent without the operator's approval.

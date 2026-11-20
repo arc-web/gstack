@@ -1,8 +1,8 @@
 ---
-name: design-html
+name: gstack-design-html
+description: "Use when asked to build the design, code the mockup, make design real: design finalization: generates production-quality Pretext-native HTML/CSS. A gstack skill under testing (third-party, MIT, status testing)."
 preamble-tier: 2
 version: 1.0.0
-description: "Design finalization: generates production-quality Pretext-native HTML/CSS. Use for: build the design, code the mockup, make design real. (gstack)"
 triggers:
   - build the design
   - code the mockup
@@ -16,6 +16,14 @@ allowed-tools:
   - Grep
   - Agent
   - AskUserQuestion
+license: MIT
+metadata:
+  source_repo: https://github.com/garrytan/gstack
+  source_commit: 43026970b7da353a6d7f4bb8c5fab18f7b410ca4
+  source_version: "1.101.0.0"
+  source_path: design-html/SKILL.md
+  upstream_name: design-html
+  status: testing
 ---
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
 <!-- Regenerate: bun run gen:skill-docs -->
@@ -25,6 +33,8 @@ allowed-tools:
 This skill follows gstack shared preamble `d8804c5ab6bf` (AskUserQuestion format, voice, writing, completeness and completion rules). If your Read of that file, headed by this id, is still in context, do not read it again; otherwise Read `~/.claude/skills/gstack/design-html/sections/preamble.md` in full before the command below. A section or subsection here with a shared heading replaces the shared one.
 
 ## Preamble (run first)
+
+**Operator gate (added at intake):** gstack's `bin/` scripts and browse binary are not part of this skill. Installing them needs the operator's approval, at an exact pinned version. Run the command below only if they are already installed. Its output can offer telemetry, artifacts sync or an update check, and those can send data off the machine: never turn any of them on, and never answer a consent prompt for the operator; ask the operator first. If the scripts are absent, use the degraded mode below.
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-skill-start --skill "design-html" --model "claude"
@@ -36,7 +46,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run `./setup` or `/gstack-upgrade`, and proceed with their task.
+the operator that gstack is not installed (installing or upgrading it needs the operator's approval at an exact pinned version), and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -79,12 +89,14 @@ Exit code 2 = rejected as not user-originated; do not retry. On success: "Set `<
 
 ## Telemetry (run last)
 
-After workflow completion, log telemetry with ONE command. OUTCOME is
+**Operator gate (added at intake):** ask the operator first. Do not run the command below, and do not run any gstack sync command, unless the operator has approved gstack telemetry and artifacts sync in this session. These scripts can send usage events or synced files to a remote service. Without a clear yes, skip this section entirely, including in plan mode.
+
+If the operator approved: after workflow completion, log telemetry with ONE command. OUTCOME is
 success/error/abort/unknown; `SESSION_ID` and `TEL_START` are the values the
 preamble's skill-start output echoed. It also drains the artifacts-sync queue
 (the former skill-end sync step — do not run gstack-brain-sync separately).
 
-**PLAN MODE EXCEPTION — ALWAYS RUN:** This writes telemetry to
+**PLAN MODE (only with the operator's approval above):** This writes telemetry to
 `$GSTACK_STATE_ROOT/analytics/`, matching preamble analytics writes.
 
 ```bash
@@ -131,7 +143,7 @@ D=""
 _DS=$("$HOME/.claude/skills/gstack/bin/gstack-paths" --get GSTACK_STATE_ROOT 2>/dev/null); _DC=${_DS:+$_DS/design-ready}; _DK=$(ls -diL "$D" 2>/dev/null)
 _dt() { if command -v gtimeout >/dev/null; then gtimeout 10 "$@"; elif command -v timeout >/dev/null; then timeout 10 "$@"
 elif command -v perl >/dev/null; then perl -e 'alarm(shift);exec(@ARGV)' 10 "$@"; else return 125; fi; }
-_RC=0; _F="Fix: cd ${D%/design/dist/design} && ./setup"
+_RC=0; _F="Fix: ask the operator first, then run ./setup (ask the operator first; pin an exact version) from a gstack checkout pinned to an exact version"
 if [ ! -x "$D" ]; then _RC=missing
 elif [ ! "$_DC" -nt "$D" ] || [ "$(cat "$_DC")" != "$_DK" ]; then _dt "$D" --version >/dev/null 2>&1 </dev/null || _RC=$?
 fi
@@ -189,7 +201,7 @@ Detect context with the CEO-plan check and the design-artifact checks below:
 
 ```bash
 SLUG=$(~/.claude/skills/gstack/bin/gstack-slug --get SLUG 2>/dev/null)
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 setopt +o nomatch 2>/dev/null || true
 _CEO=$(ls -t "$GSTACK_STATE_ROOT/projects/$SLUG/ceo-plans/"*.md 2>/dev/null | head -1)
 [ -n "$_CEO" ] && echo "CEO_PLAN: $_CEO" || echo "NO_CEO_PLAN"
@@ -197,7 +209,7 @@ _CEO=$(ls -t "$GSTACK_STATE_ROOT/projects/$SLUG/ceo-plans/"*.md 2>/dev/null | he
 
 ```bash
 SLUG=$(~/.claude/skills/gstack/bin/gstack-slug --get SLUG 2>/dev/null)
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 setopt +o nomatch 2>/dev/null || true
 _APPROVED=$(ls -t "$GSTACK_STATE_ROOT/projects/$SLUG/designs/"*/approved.json 2>/dev/null | head -1)
 [ -n "$_APPROVED" ] && echo "APPROVED: $_APPROVED" || echo "NO_APPROVED"
@@ -379,16 +391,16 @@ _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
   Pretext code after it in that same script; the bundle ends in `export {...}` and sets
   no global. The HTML file is fully self-contained with zero network dependencies.
 - If `VENDOR_MISSING`: use CDN import as fallback:
-  `<script type="module">import { prepare, layout, prepareWithSegments, walkLineRanges, layoutNextLine, layoutWithLines } from 'https://esm.sh/@chenglou/pretext'</script>`
+  `<script type="module">import { prepare, layout, prepareWithSegments, walkLineRanges, layoutNextLine, layoutWithLines } from 'https://esm.sh/@chenglou/pretext@<exact version>'</script>`
   Add a comment: `<!-- FALLBACK: vendor/pretext.js missing, using CDN -->`
 
 For **framework output**, add to the project's dependencies instead:
 ```bash
 # Detect package manager
-[ -f bun.lockb ] && echo "bun add @chenglou/pretext" || \
-[ -f pnpm-lock.yaml ] && echo "pnpm add @chenglou/pretext" || \
-[ -f yarn.lock ] && echo "yarn add @chenglou/pretext" || \
-echo "npm install @chenglou/pretext"
+[ -f bun.lockb ] && echo "bun add @chenglou/pretext@<exact version> (ask the operator first; pin an exact version)" || \
+[ -f pnpm-lock.yaml ] && echo "pnpm add @chenglou/pretext@<exact version> (ask the operator first; pin an exact version)" || \
+[ -f yarn.lock ] && echo "yarn add @chenglou/pretext@<exact version> (ask the operator first; pin an exact version)" || \
+echo "npm install @chenglou/pretext@<exact version> (ask the operator first; pin an exact version)"
 ```
 Run the detected install command. Then use standard imports in the component.
 
@@ -509,7 +521,7 @@ If issues are found, note them and fix before presenting to the user.
 Only if `gstack-render` prints `NEEDS_ASIDE` or `ASIDE_NOT_RUNNING` followed by
 `ERROR: no browser available` (Aside is not open AND gstack's own browser is not
 built), skip verification and note: "No browser available (open the Aside app,
-or run ./setup in the gstack repo to build gstack's browser). Skipping automated
+or run ./setup (ask the operator first; pin an exact version) in the gstack repo to build gstack's browser). Skipping automated
 viewport verification." Never install either for the user.
 
 ### Refinement Loop
@@ -622,3 +634,13 @@ After A, recommend (opt-in, never required) `/design-review --build <preview url
 
 - **One page per invocation.** For multi-page designs, run /design-html once per page.
   Each run produces one HTML file.
+
+---
+
+## ARC intake note (not part of upstream)
+
+- Provenance: copied from https://github.com/garrytan/gstack at commit 43026970b7da353a6d7f4bb8c5fab18f7b410ca4 (version 1.101.0.0, MIT licence, Copyright (c) 2026 Garry Tan), upstream path `design-html/SKILL.md`. The licence is the `LICENSE` file in this folder. The body is upstream's text except the intake edits below.
+- Intake edits: every install, upgrade, setup, download, telemetry and artifacts-sync step now says to ask the operator first, and install steps say to pin an exact version. A third-party product offer (Aside) is labelled as the vendor's own offer.
+- Command mapping: the body calls this skill `/design-html`; here it is `gstack-design-html`. Every other `/<command>` the body names maps the same way: `/ship` is `gstack-ship`, `/review` is `gstack-review`, and a command whose folder already starts with `gstack-` keeps that name (`/gstack-upgrade` is `gstack-upgrade`). The router is `gstack`.
+- Runtime dependency: the body calls gstack's `bin/` scripts and the compiled browse binary at `~/.claude/skills/gstack/...`. They are not vendored here. Installing them needs the operator's approval, at an exact pinned version. Without them the skill runs in its degraded mode.
+- Registry status: testing. Do not turn this skill on for an agent without the operator's approval.

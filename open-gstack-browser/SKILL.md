@@ -1,8 +1,8 @@
 ---
-name: open-gstack-browser
+name: gstack-open-gstack-browser
+description: "Use when asked to open gstack browser, launch chromium, show me the browser: launch GStack Browser — AI-controlled Chromium with the sidebar extension baked in. A gstack skill under testing (third-party, MIT, status testing)."
 preamble-tier: 1
 version: 0.2.0
-description: "Launch GStack Browser — AI-controlled Chromium with the sidebar extension baked in. Use for: open gstack browser, launch chromium."
 triggers:
   - open gstack browser
   - launch chromium
@@ -11,12 +11,21 @@ allowed-tools:
   - Bash
   - Read
   - AskUserQuestion
-
+license: MIT
+metadata:
+  source_repo: https://github.com/garrytan/gstack
+  source_commit: 43026970b7da353a6d7f4bb8c5fab18f7b410ca4
+  source_version: "1.101.0.0"
+  source_path: open-gstack-browser/SKILL.md
+  upstream_name: open-gstack-browser
+  status: testing
 ---
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
 <!-- Regenerate: bun run gen:skill-docs -->
 
 ## Preamble (run first)
+
+**Operator gate (added at intake):** gstack's `bin/` scripts and browse binary are not part of this skill. Installing them needs the operator's approval, at an exact pinned version. Run the command below only if they are already installed. Its output can offer telemetry, artifacts sync or an update check, and those can send data off the machine: never turn any of them on, and never answer a consent prompt for the operator; ask the operator first. If the scripts are absent, use the degraded mode below.
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-skill-start --skill "open-gstack-browser" --model "claude"
@@ -28,7 +37,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run `./setup` or `/gstack-upgrade`, and proceed with their task.
+the operator that gstack is not installed (installing or upgrading it needs the operator's approval at an exact pinned version), and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -63,7 +72,7 @@ it says and the command it names, then continue.
 
 The one-time privacy stop-gate arrives as a `GSTACK_INSTRUCTION` block
 from skill-start when consent is pending; fire it via AskUserQuestion
-exactly as instructed.
+exactly as instructed; never answer for the operator, and ask the operator first before anything that syncs files to a remote repository.
 
 ## Model-Specific Behavioral Patch (claude)
 
@@ -128,12 +137,14 @@ Do not log obvious facts or one-time transient errors.
 
 ## Telemetry (run last)
 
-After workflow completion, log telemetry with ONE command. OUTCOME is
+**Operator gate (added at intake):** ask the operator first. Do not run the command below, and do not run any gstack sync command, unless the operator has approved gstack telemetry and artifacts sync in this session. These scripts can send usage events or synced files to a remote service. Without a clear yes, skip this section entirely, including in plan mode.
+
+If the operator approved: after workflow completion, log telemetry with ONE command. OUTCOME is
 success/error/abort/unknown; `SESSION_ID` and `TEL_START` are the values the
 preamble's skill-start output echoed. It also drains the artifacts-sync queue
 (the former skill-end sync step — do not run gstack-brain-sync separately).
 
-**PLAN MODE EXCEPTION — ALWAYS RUN:** This writes telemetry to
+**PLAN MODE (only with the operator's approval above):** This writes telemetry to
 `$GSTACK_STATE_ROOT/analytics/`, matching preamble analytics writes.
 
 ```bash
@@ -174,8 +185,8 @@ fi
 
 If `NEEDS_SETUP`:
 1. Tell the user: "gstack browse needs a one-time build (~10 seconds). OK to proceed?" Then STOP and wait.
-2. Run: `cd <SKILL_DIR> && ./setup`
-3. If `bun` is not installed:
+2. Run: `cd <SKILL_DIR> && ./setup` (ask the operator first; pin an exact version)
+3. If `bun` is not installed (ask the operator first; the version and checksum below are pinned, never `@latest`):
    ```bash
    if ! command -v bun >/dev/null 2>&1; then
      BUN_VERSION="1.4.2"
@@ -221,7 +232,7 @@ else echo "DAEMON: live"; fi
   stop.
 
   ```bash
-  GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+  GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
   _PROFILE_DIR="$GSTACK_STATE_ROOT/chromium-profile"
   for _LF in SingletonLock SingletonSocket SingletonCookie; do
     rm -f "$_PROFILE_DIR/$_LF" 2>/dev/null || true
@@ -416,3 +427,14 @@ Tell the user:
 
 Then proceed with whatever the user asked to do. If they didn't specify a task,
 ask what they'd like to test or browse.
+
+---
+
+## ARC intake note (not part of upstream)
+
+- Provenance: copied from https://github.com/garrytan/gstack at commit 43026970b7da353a6d7f4bb8c5fab18f7b410ca4 (version 1.101.0.0, MIT licence, Copyright (c) 2026 Garry Tan), upstream path `open-gstack-browser/SKILL.md`. The licence is the `LICENSE` file in this folder. The body is upstream's text except the intake edits below.
+- Intake edits: every install, upgrade, setup, download, telemetry and artifacts-sync step now says to ask the operator first, and install steps say to pin an exact version. A third-party product offer (Aside) is labelled as the vendor's own offer.
+- Command mapping: the body calls this skill `/open-gstack-browser`; here it is `gstack-open-gstack-browser`. Every other `/<command>` the body names maps the same way: `/ship` is `gstack-ship`, `/review` is `gstack-review`, and a command whose folder already starts with `gstack-` keeps that name (`/gstack-upgrade` is `gstack-upgrade`). The router is `gstack`.
+- Runtime dependency: the body calls gstack's `bin/` scripts and the compiled browse binary at `~/.claude/skills/gstack/...`. They are not vendored here. Installing them needs the operator's approval, at an exact pinned version. Without them the skill runs in its degraded mode.
+- Registry status: testing. Do not turn this skill on for an agent without the operator's approval.
+- Alias: upstream's `/connect-chrome` is a symbolic link to this folder, so `/connect-chrome` means `gstack-open-gstack-browser`.

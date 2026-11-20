@@ -153,6 +153,8 @@ Skills that run plan reviews (`/plan-*-review`, `/codex review`) include the EXI
 
 ## Route first
 
+Disabled on this install (never invoke or suggest them): `/browse`, `/scrape`, `/connect-chrome`, `/open-gstack-browser`, `/setup-browser-cookies`, `/pair-agent`.
+
 This is the gstack router. Its one job is to send the request to the right skill.
 
 1. If the request is to test behavior, find bugs, QA or dogfood software → invoke `/qa`,
@@ -232,10 +234,6 @@ Generic “second opinion”, “outside review”, or “cross-model review” 
 - User asks to resume, restore, "where was I" → invoke `/context-restore`
 - User asks about security, OWASP, vulnerabilities, "is this secure" → invoke `/cso`
 - User asks to make a PDF, document, publication → invoke `/make-pdf`
-- User asks to pull data off a web page, "grab the table from", "extract the prices" → invoke `/scrape`
-- User asks to launch a real browser for QA, "open the browser" → invoke `/open-gstack-browser` (fallback browser; on Aside the tabs are already visible)
-- User asks to import cookies for authenticated testing → invoke `/setup-browser-cookies` (fallback browser; Aside already has the sessions)
-- User asks to share the browser with another agent, "pair OpenClaw/Codex with my browser" → invoke `/pair-agent` (fallback browser)
 - User asks to codify or save the last `/scrape` as a reusable skill → invoke `/skillify` (fallback browser)
 - User asks about page speed, web performance regression → invoke `/benchmark`; model or skill benchmarks → invoke `/benchmark-models`
 - User asks to plan, preregister, price or pilot a paid eval → invoke `/eval-plan`
@@ -247,7 +245,6 @@ Generic “second opinion”, “outside review”, or “cross-model review” 
 - Voice trigger "auto plan", "automatic review" → invoke `/autoplan`
 - Voice trigger "speed test", "check performance" → invoke `/benchmark`
 - Voice trigger "compare models", "model shootout", "which model is best" → invoke `/benchmark-models`
-- Voice trigger "open the browser", "look at this page" → invoke `/browse`
 - Voice trigger "code x", "code ex", "get another opinion" → invoke `/codex`
 - Voice trigger "see-so", "see so", "security review", "security check", "vulnerability scan", "run security" → invoke `/cso`
 - Voice trigger "build the design", "code the mockup", "make it real" → invoke `/design-html`
@@ -259,8 +256,6 @@ Generic “second opinion”, “outside review”, or “cross-model review” 
 - Voice trigger "iOS quality check", "test the iPhone app", "test the iPad app", "run iOS QA" → invoke `/ios-qa`
 - Voice trigger "resync the iOS debug bridge", "regenerate iOS accessors", "update the gstack iOS instrumentation" → invoke `/ios-sync`
 - Voice trigger "make this a pdf", "make it a pdf", "export to pdf", "turn this into a pdf", "turn this markdown into a pdf", "generate a pdf", "make a pdf from", "pdf this markdown" → invoke `/make-pdf`
-- Voice trigger "show me the browser" → invoke `/open-gstack-browser`
-- Voice trigger "pair agent", "connect agent", "share my browser", "remote browser access" → invoke `/pair-agent`
 - Voice trigger "dx review", "developer experience review", "devex review", "devex audit", "API design review", "onboarding review" → invoke `/plan-devex-review`
 - Voice trigger "tech review", "technical review", "plan engineering review" → invoke `/plan-eng-review`
 - Voice trigger "quality check", "test the app", "run QA" → invoke `/qa`

@@ -23,6 +23,8 @@ allowed-tools:
 
 # /gstack-upgrade
 
+**Operator gate (added at intake):** this skill replaces the installed gstack with another upstream version and runs its setup. Ask the operator first, name the exact version or commit, and install only that pinned ref, never `main`, `stable` or latest. Skip every step that upgrades without asking, including auto-upgrade.
+
 ## Inline upgrade flow
 
 This section is referenced by all skill preambles when they detect `UPGRADE_AVAILABLE`.
@@ -54,7 +56,7 @@ Tell user: "Auto-upgrade enabled. Future updates will install automatically." Th
 
 **If "Not now":** Write snooze state with escalating backoff (first snooze = 24h, second = 48h, third+ = 1 week), then continue with the current skill. Do not mention the upgrade again.
 ```bash
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 _SNOOZE_FILE="$GSTACK_STATE_ROOT/update-snoozed"
 _REMOTE_VER="{new}"
 _CUR_LEVEL=0
@@ -180,8 +182,8 @@ On `AHEAD_OF_STABLE`, STOP: the checkout is already past the latest stable relea
 `autostash-unrecoverable` names what is in the way (an untracked file the
 release adds, or another git command); `index-unreadable` means the checkout's
 index is damaged.
-On `BUN_TOO_OLD`, STOP: tell the user to run `bun upgrade`, then /gstack-upgrade again.
-On `BUN_VERSION_UNREADABLE`, STOP: `bun --version` did not print a version gstack can read, so `bun upgrade` may not run either; tell the user to reinstall Bun from https://bun.sh (`curl -fsSL https://bun.sh/install | bash` in Git Bash or a macOS/Linux terminal), check that `bun --version` prints a version such as 1.4.2, then run /gstack-upgrade again (docs/troubleshooting.md#bun-version-unreadable).
+On `BUN_TOO_OLD`, STOP: ask the operator whether to upgrade Bun, and only to an exact version they name, then run /gstack-upgrade again.
+On `BUN_VERSION_UNREADABLE`, STOP: `bun --version` did not print a version gstack can read, so `bun upgrade` may not run either; ask the operator first, and reinstall Bun only at an exact version the operator names (download the installer to a file and check its checksum; never pipe a download into a shell), check that `bun --version` prints a version such as 1.4.2, then run /gstack-upgrade again (docs/troubleshooting.md#bun-version-unreadable).
 On `SETUP_FAILED`, STOP; keep user changes and report the recovery commit. There is no `.bak` on the git path. Do not enter the divergence fallback merely because setup failed. Enter it only on `FF_REFUSED` (local commits or a diverged history); network/auth failures stop for repair, not reset.
 
 **Fallback (ff-only refused — local commits or divergence).** `git reset
@@ -219,7 +221,7 @@ If `$STASH_OUTPUT` contains "Saved working directory", warn the user: "Note: loc
 # abort and let the human inspect, never delete it silently.
 [ -e "$INSTALL_DIR.bak" ] && { echo "ERROR: stale backup exists at $INSTALL_DIR.bak (from a previous failed upgrade?) — inspect it, salvage/remove it, then re-run." >&2; exit 1; }
 TMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/gstack-upgrade.XXXXXX") || { echo "ERROR: mktemp failed — aborting upgrade (install untouched)." >&2; exit 1; }
-git clone --depth 1 https://github.com/garrytan/gstack.git "$TMP_DIR/gstack" || { echo "ERROR: clone failed — aborting upgrade (install untouched)." >&2; rm -rf "$TMP_DIR"; exit 1; }
+git clone --depth 1 --branch "<operator-approved exact tag>" https://github.com/garrytan/gstack.git "$TMP_DIR/gstack" || { echo "ERROR: clone failed — aborting upgrade (install untouched)." >&2; rm -rf "$TMP_DIR"; exit 1; }
 mv "$INSTALL_DIR" "$INSTALL_DIR.bak" || { rm -rf "$TMP_DIR"; exit 1; }
 if mv "$TMP_DIR/gstack" "$INSTALL_DIR"; then
   if (cd "$INSTALL_DIR" && {{SETUP_COMMAND}} --refresh-registered); then
@@ -356,7 +358,7 @@ Substitute the install directory from Step 2, then act on `DAEMON_CHECK`:
 ### Step 5: Write marker + clear cache
 
 ```bash
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 mkdir -p "$GSTACK_STATE_ROOT"
 echo "$OLD_VERSION" > "$GSTACK_STATE_ROOT"/just-upgraded-from
 rm -f "$GSTACK_STATE_ROOT"/last-update-check

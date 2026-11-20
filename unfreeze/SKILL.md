@@ -1,5 +1,5 @@
 ---
-name: unfreeze
+name: gstack-unfreeze
 version: 0.1.0
 description: "Clear the freeze boundary set by /freeze, allowing edits to all directories again. Use for: unfreeze edits, unlock all directories. (gstack)"
 triggers:
@@ -18,7 +18,7 @@ allowed-tools:
 Remove the edit restriction set by `/freeze`, allowing edits to all directories.
 
 ```bash
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 mkdir -p "$GSTACK_STATE_ROOT"/analytics
 echo '{"skill":"unfreeze","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")'"}'  >> "$GSTACK_STATE_ROOT"/analytics/skill-usage.jsonl 2>/dev/null || true
 ```

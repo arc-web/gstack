@@ -19,7 +19,7 @@ the steps to expose your iPhone to remote agents safely so they can run iOS QA o
 ## Step 1: Install and run Tailscale
 
 ```bash
-brew install --cask tailscale
+brew install --cask tailscale   # ask the operator first; pin an exact version
 # Login + start tailscaled, then verify:
 tailscale status
 ```

@@ -48,7 +48,7 @@ repo, 10 candidates).
 ## Step 1: Scope and seeds
 
 ```bash
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 setopt +o nomatch 2>/dev/null || true  # zsh compat
 {{SLUG_SETUP}}
 DATETIME=$(date +%Y%m%d-%H%M%S)

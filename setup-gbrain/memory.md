@@ -184,8 +184,8 @@ was skipped via `bun run bin/gstack-memory-ingest.ts --probe` (which
 shows new vs. updated counts) or by reviewing the helper's output during
 `/sync-gbrain --full`.
 
-If gitleaks is not installed (run `brew install gitleaks` on macOS, or
-`apt install gitleaks` on Linux) and you passed `--scan-secrets` anyway,
+If gitleaks is not installed (ask the operator first, then run `brew install gitleaks` on macOS, or
+`apt install gitleaks` on Linux, at an exact pinned version) and you passed `--scan-secrets` anyway,
 the helper warns once and every file it cannot scan is skipped, not
 imported unscanned. The same goes for a scan that fails partway. Skipped
 files stay pending and are retried on the next run. Missing or malformed

@@ -1,8 +1,8 @@
 ---
-name: ubicloud
+name: gstack-ubicloud
+description: "Use when asked to run on ubicloud, ubicloud vm, remote test run: run a heavy suite, build or eval on an ephemeral 16-vCPU Ubicloud VM: TTL-named VMs, a reaper, quota preflight and a hang watchdog. A gstack skill under testing (third-party, MIT, status testing)."
 preamble-tier: 2
 version: 1.0.0
-description: "Run a heavy suite, build or eval on an ephemeral 16-vCPU Ubicloud VM: TTL-named VMs, a reaper, quota preflight and a hang watchdog. Use for: run on ubicloud, ubicloud vm, remote test run. (gstack)"
 triggers:
   - run on ubicloud
   - ubicloud vm
@@ -11,6 +11,14 @@ triggers:
 allowed-tools:
   - Bash
   - Read
+license: MIT
+metadata:
+  source_repo: https://github.com/garrytan/gstack
+  source_commit: 43026970b7da353a6d7f4bb8c5fab18f7b410ca4
+  source_version: "1.101.0.0"
+  source_path: ubicloud/SKILL.md
+  upstream_name: ubicloud
+  status: testing
 ---
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
 <!-- Regenerate: bun run gen:skill-docs -->
@@ -23,6 +31,8 @@ This skill follows gstack shared preamble `d8804c5ab6bf` (AskUserQuestion format
 
 ## Preamble (run first)
 
+**Operator gate (added at intake):** gstack's `bin/` scripts and browse binary are not part of this skill. Installing them needs the operator's approval, at an exact pinned version. Run the command below only if they are already installed. Its output can offer telemetry, artifacts sync or an update check, and those can send data off the machine: never turn any of them on, and never answer a consent prompt for the operator; ask the operator first. If the scripts are absent, use the degraded mode below.
+
 ```bash
 ~/.claude/skills/gstack/bin/gstack-skill-start --skill "ubicloud" --model "claude"
 ```
@@ -33,7 +43,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run `./setup` or `/gstack-upgrade`, and proceed with their task.
+the operator that gstack is not installed (installing or upgrading it needs the operator's approval at an exact pinned version), and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -76,12 +86,14 @@ Exit code 2 = rejected as not user-originated; do not retry. On success: "Set `<
 
 ## Telemetry (run last)
 
-After workflow completion, log telemetry with ONE command. OUTCOME is
+**Operator gate (added at intake):** ask the operator first. Do not run the command below, and do not run any gstack sync command, unless the operator has approved gstack telemetry and artifacts sync in this session. These scripts can send usage events or synced files to a remote service. Without a clear yes, skip this section entirely, including in plan mode.
+
+If the operator approved: after workflow completion, log telemetry with ONE command. OUTCOME is
 success/error/abort/unknown; `SESSION_ID` and `TEL_START` are the values the
 preamble's skill-start output echoed. It also drains the artifacts-sync queue
 (the former skill-end sync step — do not run gstack-brain-sync separately).
 
-**PLAN MODE EXCEPTION — ALWAYS RUN:** This writes telemetry to
+**PLAN MODE (only with the operator's approval above):** This writes telemetry to
 `$GSTACK_STATE_ROOT/analytics/`, matching preamble analytics writes.
 
 ```bash
@@ -233,7 +245,7 @@ granted.
 
 The bootstrap mirrors the repository's CI job: toolchain, dependencies, services,
 and for browser tests `xvfb` plus
-`sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0` (a stock Ubuntu
+`sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0` (changes the VM only; ask the operator first) (a stock Ubuntu
 24.04 VM has neither; `clang` and `python3-venv` are absent too). Relative
 `setup` paths resolve against `--src` (default `.`). gstack's own definition is
 `bun run test:ubicloud` (the free suite with the CI lane's environment) and
@@ -287,3 +299,13 @@ is visible: a `standard-16` run is billed from create to confirmed teardown.
    a pass; rerun it.
 5. Measure before/after pairs on the same size and location, never one side
    local and the other remote.
+
+---
+
+## ARC intake note (not part of upstream)
+
+- Provenance: copied from https://github.com/garrytan/gstack at commit 43026970b7da353a6d7f4bb8c5fab18f7b410ca4 (version 1.101.0.0, MIT licence, Copyright (c) 2026 Garry Tan), upstream path `ubicloud/SKILL.md`. The licence is the `LICENSE` file in this folder. The body is upstream's text except the intake edits below.
+- Intake edits: every install, upgrade, setup, download, telemetry and artifacts-sync step now says to ask the operator first, and install steps say to pin an exact version. A third-party product offer (Aside) is labelled as the vendor's own offer.
+- Command mapping: the body calls this skill `/ubicloud`; here it is `gstack-ubicloud`. Every other `/<command>` the body names maps the same way: `/ship` is `gstack-ship`, `/review` is `gstack-review`, and a command whose folder already starts with `gstack-` keeps that name (`/gstack-upgrade` is `gstack-upgrade`). The router is `gstack`.
+- Runtime dependency: the body calls gstack's `bin/` scripts and the compiled browse binary at `~/.claude/skills/gstack/...`. They are not vendored here. Installing them needs the operator's approval, at an exact pinned version. Without them the skill runs in its degraded mode.
+- Registry status: testing. Do not turn this skill on for an agent without the operator's approval.

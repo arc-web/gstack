@@ -40,7 +40,7 @@ Different from `/benchmark` — that skill measures web page performance (Core W
 ```bash
 BIN="{{RUNTIME_ROOT}}/bin/gstack-model-benchmark"
 [ -x "$BIN" ] || BIN=".claude/skills/gstack/bin/gstack-model-benchmark"
-[ -x "$BIN" ] || { echo "ERROR: gstack-model-benchmark not found. Run ./setup in the gstack install dir." >&2; exit 1; }
+[ -x "$BIN" ] || { echo "ERROR: gstack-model-benchmark not found. Run ./setup (ask the operator first; pin an exact version) in the gstack install dir." >&2; exit 1; }
 echo "BIN: $BIN"
 ```
 
@@ -94,7 +94,7 @@ If at least one is OK: AskUserQuestion:
 ## Step 3: Decide on judge
 
 ```bash
-[ -n "$ANTHROPIC_API_KEY" ] || grep -q 'ANTHROPIC' "$HOME/.claude/.credentials.json" 2>/dev/null && echo "JUDGE_AVAILABLE" || echo "JUDGE_UNAVAILABLE"
+[ -n "$ANTHROPIC_API_KEY" ] && echo "JUDGE_AVAILABLE" || echo "JUDGE_UNAVAILABLE"
 ```
 
 If judge is available, AskUserQuestion:

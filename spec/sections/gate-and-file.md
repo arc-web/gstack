@@ -325,7 +325,7 @@ TITLE_FILE="$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.gstack/tmp/<tit
 [ -s "$REDACT_FILE" ] && [ -s "$TITLE_FILE" ] || { echo "Not archived: $REDACT_FILE or $TITLE_FILE is missing or empty." >&2; exit 1; }
 ISSUE_NUMBER=<issue-number>
 ISSUE_URL=$([ -n "$ISSUE_NUMBER" ] && gh issue view "$ISSUE_NUMBER" --json url -q .url 2>/dev/null)
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 SLUG=$(~/.claude/skills/gstack/bin/gstack-slug --get SLUG)
 ARCHIVE_DIR="$GSTACK_STATE_ROOT/projects/$SLUG/specs"
 mkdir -p "$ARCHIVE_DIR"

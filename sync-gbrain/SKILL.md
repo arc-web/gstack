@@ -1,5 +1,5 @@
 ---
-name: sync-gbrain
+name: gstack-sync-gbrain
 preamble-tier: 2
 version: 1.0.0
 description: "Keep gbrain current with this repo's code and refresh agent search guidance in CLAUDE.md. Use for: sync gbrain, refresh gbrain, reindex repo. (gstack)"
@@ -99,6 +99,8 @@ are "" unless outcome is error. If the command is missing (stale install), skip
 telemetry — it never blocks the workflow.
 
 # /sync-gbrain — Keep gbrain current and teach the agent to use it
+
+**Operator gate (added at intake):** the brain-sync stage pushes files to a remote repository. Ask the operator first, and skip that stage without a clear yes.
 
 You are running the canonical "keep this brain up to date" verb. /setup-gbrain
 installs gbrain once; /sync-gbrain runs every time the user wants the brain

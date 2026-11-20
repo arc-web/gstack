@@ -1,5 +1,5 @@
 ---
-name: pair-agent
+name: gstack-pair-agent
 preamble-tier: 2
 version: 0.1.0
 description: "Pair a remote AI agent with your browser. Use for: pair with agent, connect remote agent. (gstack)"
@@ -95,6 +95,8 @@ are "" unless outcome is error. If the command is missing (stale install), skip
 telemetry — it never blocks the workflow.
 
 # /pair-agent — Share Your Browser With Another AI Agent
+
+**Operator gate (added at intake):** pairing opens a tunnel that lets a remote agent drive your browser. Ask the operator first, and install no tunnel tool without the operator's approval at an exact version.
 
 You're sitting in Claude Code with a browser running. You also have another AI agent
 open (OpenClaw, Hermes, Codex, Cursor, whatever). You want that other agent to be
@@ -355,7 +357,7 @@ browser to the internet securely).
 
 1. Go to https://ngrok.com and sign up (free tier works)
 2. Install ngrok:
-   - macOS: `brew install ngrok`
+   - macOS: `brew install ngrok` (ask the operator first; pin an exact version)
    - Linux: `snap install ngrok` or download from ngrok.com/download
 3. Auth it: `ngrok config add-authtoken YOUR_TOKEN`
    (get your token from https://dashboard.ngrok.com/get-started/your-authtoken)

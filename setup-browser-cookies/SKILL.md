@@ -1,5 +1,5 @@
 ---
-name: setup-browser-cookies
+name: gstack-setup-browser-cookies
 preamble-tier: 1
 version: 1.0.0
 description: "Import cookies from your real Chromium browser into the headless browse session. Use for: import browser cookies, login to test site. (gstack)"
@@ -151,6 +151,8 @@ telemetry — it never blocks the workflow.
 Skills that run plan reviews (`/plan-*-review`, `/codex review`) include the EXIT PLAN MODE GATE blocking checklist at the end of the skill, which verifies the plan file ends with `## GSTACK REVIEW REPORT` before ExitPlanMode is called. Skills that don't run plan reviews (operational skills like `/ship`, `/qa`, `/review`) typically don't operate in plan mode and have no review report to verify; this footer is a no-op for them. Writing the plan file is the one edit allowed in plan mode.
 
 # Setup Browser Cookies
+
+**Operator gate (added at intake):** importing cookies copies logged-in sessions into another browser profile. Ask the operator first for each domain, and never print or send cookie values.
 
 ## 1. Check for Aside
 

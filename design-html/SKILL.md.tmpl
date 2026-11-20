@@ -58,7 +58,7 @@ Detect context with the CEO-plan check and the design-artifact checks below:
 
 ```bash
 SLUG=$(~/.claude/skills/gstack/bin/gstack-slug --get SLUG 2>/dev/null)
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 setopt +o nomatch 2>/dev/null || true
 _CEO=$(ls -t "$GSTACK_STATE_ROOT/projects/$SLUG/ceo-plans/"*.md 2>/dev/null | head -1)
 [ -n "$_CEO" ] && echo "CEO_PLAN: $_CEO" || echo "NO_CEO_PLAN"
@@ -66,7 +66,7 @@ _CEO=$(ls -t "$GSTACK_STATE_ROOT/projects/$SLUG/ceo-plans/"*.md 2>/dev/null | he
 
 ```bash
 SLUG=$(~/.claude/skills/gstack/bin/gstack-slug --get SLUG 2>/dev/null)
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 setopt +o nomatch 2>/dev/null || true
 _APPROVED=$(ls -t "$GSTACK_STATE_ROOT/projects/$SLUG/designs/"*/approved.json 2>/dev/null | head -1)
 [ -n "$_APPROVED" ] && echo "APPROVED: $_APPROVED" || echo "NO_APPROVED"
@@ -246,16 +246,16 @@ _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
   Pretext code after it in that same script; the bundle ends in `export {...}` and sets
   no global. The HTML file is fully self-contained with zero network dependencies.
 - If `VENDOR_MISSING`: use CDN import as fallback:
-  `<script type="module">import { prepare, layout, prepareWithSegments, walkLineRanges, layoutNextLine, layoutWithLines } from 'https://esm.sh/@chenglou/pretext'</script>`
+  `<script type="module">import { prepare, layout, prepareWithSegments, walkLineRanges, layoutNextLine, layoutWithLines } from 'https://esm.sh/@chenglou/pretext@<exact version>'</script>`
   Add a comment: `<!-- FALLBACK: vendor/pretext.js missing, using CDN -->`
 
 For **framework output**, add to the project's dependencies instead:
 ```bash
 # Detect package manager
-[ -f bun.lockb ] && echo "bun add @chenglou/pretext" || \
-[ -f pnpm-lock.yaml ] && echo "pnpm add @chenglou/pretext" || \
-[ -f yarn.lock ] && echo "yarn add @chenglou/pretext" || \
-echo "npm install @chenglou/pretext"
+[ -f bun.lockb ] && echo "bun add @chenglou/pretext@<exact version> (ask the operator first; pin an exact version)" || \
+[ -f pnpm-lock.yaml ] && echo "pnpm add @chenglou/pretext@<exact version> (ask the operator first; pin an exact version)" || \
+[ -f yarn.lock ] && echo "yarn add @chenglou/pretext@<exact version> (ask the operator first; pin an exact version)" || \
+echo "npm install @chenglou/pretext@<exact version> (ask the operator first; pin an exact version)"
 ```
 Run the detected install command. Then use standard imports in the component.
 
@@ -368,7 +368,7 @@ If issues are found, note them and fix before presenting to the user.
 Only if `gstack-render` prints `NEEDS_ASIDE` or `ASIDE_NOT_RUNNING` followed by
 `ERROR: no browser available` (Aside is not open AND gstack's own browser is not
 built), skip verification and note: "No browser available (open the Aside app,
-or run ./setup in the gstack repo to build gstack's browser). Skipping automated
+or run ./setup (ask the operator first; pin an exact version) in the gstack repo to build gstack's browser). Skipping automated
 viewport verification." Never install either for the user.
 
 ### Refinement Loop

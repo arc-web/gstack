@@ -28,6 +28,8 @@ allowed-tools:
 
 # /setup-gbrain — Coding-Agent Onboarding for gbrain
 
+**Operator gate (added at intake):** installing the gbrain CLI, creating a database project and registering a remote brain each change the machine or send data off it. Ask the operator first before each, and pin an exact gbrain version.
+
 You are setting up gbrain (https://github.com/garrytan/gbrain), a persistent
 knowledge base, on the user's machine so that this coding agent (typically
 Claude Code) can call it as both a CLI and an MCP tool.
@@ -569,7 +571,7 @@ configured machine is a first-class doctor path: every step detects existing
 state, repairs only what's missing, and reports here.
 
 ```bash
-GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
 ~/.claude/skills/gstack/bin/gstack-gbrain-detect 2>/dev/null || true
 ~/.claude/skills/gstack/bin/gstack-config has transcript_ingest_mode && echo "transcript_ingest_mode: $(~/.claude/skills/gstack/bin/gstack-config get transcript_ingest_mode)" || echo "transcript_ingest_mode: not set"
 ~/.claude/skills/gstack/bin/gstack-config get artifacts_sync_mode 2>/dev/null || echo "off"
@@ -719,7 +721,7 @@ invocation.
   is not a competing run:
 
   ```bash
-  GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall with ./setup or /gstack-upgrade}"
+  GSTACK_STATE_ROOT=$(~/.claude/skills/gstack/bin/gstack-paths --get GSTACK_STATE_ROOT); : "${GSTACK_STATE_ROOT:?gstack-paths failed; reinstall gstack: ask the operator first, pinned version}"
   if ! mkdir -p "$GSTACK_STATE_ROOT"; then
     echo "ERROR: Cannot create setup-gbrain lock parent $GSTACK_STATE_ROOT." >&2
     exit 1

@@ -130,7 +130,7 @@ Note: `atob()` yields Latin-1; for sources with non-ASCII labels use
 gstack's own headless browser. Only when it prints `NEEDS_ASIDE` or
 `ASIDE_NOT_RUNNING` followed by `ERROR: no browser available` is there nothing
 to render with — Aside (macOS 15+, aside.com) is not open and gstack's browser
-is not built. Tell the user to open Aside, or to run `./setup` in the gstack
+is not built. Tell the user to open Aside, or to run `./setup` (ask the operator first; pin an exact version) in the gstack
 repo to build the fallback, and stop. Never install Aside for them, and never
 substitute a CDN or another renderer.
 
@@ -172,4 +172,4 @@ falls back from a worker to the main thread inside the single-file bundle
 - DONE — triplet delivered and shown (with the image-only note for
   non-flowchart, non-sequence types).
 - BLOCKED — bundle missing or no browser available; the build command, "open
-  Aside", or "run ./setup" surfaced.
+  Aside", or "run ./setup (ask the operator first; pin an exact version)" surfaced.
